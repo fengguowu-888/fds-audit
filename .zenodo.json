@@ -1,0 +1,25 @@
+{
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "title": "fds-audit: a static checker for silent geometry failures in Fire Dynamics Simulator (FDS) input files",
+  "description": "fds-audit parses an FDS input file, reconstructs the solid-cell grid using FDS's own cell-center rule, and asserts 11 silent-failure modes (containment, clipping, grid conformance, dead vents, occlusion, sensors in solids, INERT boundary degradation, fire resolution, and more) that FDS does not report in its output. Validated by a mutation benchmark (77 failures, 100% recall), an audit of 925 NIST examples, and a 40-case impact study.",
+  "creators": [
+    {
+      "name": "Wu, Fengguo",
+      "orcid": "0009-0005-6420-3127",
+      "affiliation": "Jilin Jianzhu University"
+    }
+  ],
+  "keywords": [
+    "fire dynamics simulator",
+    "FDS",
+    "fire safety",
+    "CFD",
+    "static analysis",
+    "input validation",
+    "silent failure",
+    "quality assurance"
+  ],
+  "related_identifiers": []
+}

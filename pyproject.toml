@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fds-audit"
+version = "0.1.0"
+description = "Static checker for silent geometry failures in Fire Dynamics Simulator (FDS) input files"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "Fengguo Wu" },
+]
+keywords = [
+  "FDS", "Fire Dynamics Simulator", "fire safety", "CFD",
+  "static analysis", "input validation", "silent failure", "quality assurance",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+]
+
+[project.scripts]
+fds-audit = "fds_audit.domain_check:main"
+
+[project.urls]
+Homepage = "https://github.com/wufengguo/fds-audit"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

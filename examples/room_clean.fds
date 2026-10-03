@@ -1,0 +1,22 @@
+&HEAD CHID='demo_clean' /
+&TIME T_END=30.0 /
+
+! A sealed 4x4x4 m enclosure. No openings, so no VENT-based inlets/outlets.
+&MESH IJK=40,40,40 XB=0.0,4.0,0.0,4.0,0.0,4.0 /
+
+! six walls / floor / ceiling
+&OBST XB=0.0,0.1,0.0,4.0,0.0,4.0 SURF_ID='CONCRETE' /
+&OBST XB=3.9,4.0,0.0,4.0,0.0,4.0 SURF_ID='CONCRETE' /
+&OBST XB=0.0,4.0,0.0,0.1,0.0,4.0 SURF_ID='CONCRETE' /
+&OBST XB=0.0,4.0,3.9,4.0,0.0,4.0 SURF_ID='CONCRETE' /
+&OBST XB=0.0,4.0,0.0,4.0,0.0,0.1 SURF_ID='CONCRETE' /
+&OBST XB=0.0,4.0,0.0,4.0,3.9,4.0 SURF_ID='CONCRETE' /
+
+! a fire on the floor
+&VENT XB=1.5,2.5,1.5,2.5,0.1,0.1 SURF_ID='FIRE' /
+
+&DEVC XYZ=2.0,2.0,2.5 QUANTITY='THERMOCOUPLE' ID='t1' /
+
+&SURF ID='CONCRETE' MATL_ID='CONCRETE' /
+&SURF ID='FIRE' HRRPUA=500.0 /
+&MATL ID='CONCRETE' DENSITY=2000.0 CONDUCTIVITY=1.0 SPECIFIC_HEAT=1.0 /
