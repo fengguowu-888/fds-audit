@@ -37,7 +37,7 @@ Three measured facts motivate this tool:
 | `O1` overlap | WARN | duplicate / fully nested OBST |
 | `O2` occlusion | ERROR/WARN | OBST cells all occupied by other solids → inert |
 | `D1` devc in solid | ERROR | sensor point inside a solid cell → meaningless reading |
-| `B1` boundary audit | WARN | boundary gas cells without a vent → INERT "fake wall" |
+| `B1` boundary audit | WARN | boundary gas cells without an opening (`XB` or `MB` vent) → INERT "fake wall" |
 | `R1` resolution | WARN | D\*/dx below threshold (coarse fire resolution) |
 | `S1` snapping | INFO | declared → snapped coordinates (discretization report) |
 
@@ -87,7 +87,7 @@ if errs:
 
 ## How it works
 
-`fds-audit` parses the FDS namelist (`&OBST`, `&VENT`, `&HOLE`, `&MESH`, `&DEVC`, `&SURF`, …), reconstructs the solid-cell grid using FDS's own rule (a cell is solid if its *center* lies inside any OBST), then asserts each check against that grid. Uniformly tiled multi-mesh (MPI decomposition) is merged into one logical grid; non-uniform / gapped / overlapping meshes degrade gracefully to a `MESH:WARN` instead of silently guessing.
+`fds-audit` parses the FDS namelist (`&OBST`, `&VENT`, `&HOLE`, `&MESH`, `&DEVC`, `&SURF`, …), reconstructs the solid-cell grid using FDS's own rule (a cell is solid if its *center* lies inside any OBST), then asserts each check against that grid. Uniformly tiled multi-mesh (MPI decomposition) is merged into one logical grid; non-uniform / gapped / overlapping meshes degrade gracefully to a `MESH:WARN` instead of silently guessing. `&VENT MB='XMIN'…` mesh-boundary vents are resolved as full-boundary openings, so the boundary audit does not flag an intentionally open domain boundary.
 
 ## Validation
 

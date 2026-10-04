@@ -38,3 +38,25 @@ def test_v1_dead_vent_between_solids():
     )
     issues = check_model(parse_text(txt))
     assert any(i.code == "V1" and i.level == "ERROR" for i in issues)
+
+
+def test_b1_mb_vent_not_bare():
+    # Full-boundary &VENT MB='XMIN'...'OPEN' must not be flagged as bare wall (B1 WARN).
+    txt = _box(
+        "&VENT MB='XMIN', SURF_ID='OPEN' /\n"
+        "&VENT MB='XMAX', SURF_ID='OPEN' /\n"
+        "&VENT MB='YMIN', SURF_ID='OPEN' /\n"
+        "&VENT MB='YMAX', SURF_ID='OPEN' /\n"
+        "&VENT MB='ZMIN', SURF_ID='OPEN' /\n"
+        "&VENT MB='ZMAX', SURF_ID='OPEN' /\n"
+    )
+    issues = check_model(parse_text(txt))
+    b1 = [i for i in issues if i.code == "B1"]
+    assert b1, "B1 应仍报告边界气相格统计"
+    assert all(i.level != "WARN" for i in b1), "MB 风口已覆盖的边界不应有 B1 WARN"
+
+
+def test_b1_mb_faces_parsed():
+    m = parse_text(_box("&VENT MB='XMIN', SURF_ID='OPEN' /\n"))
+    assert (0, 0) in m.mb_faces
+    assert m.vents == []  # MB-only vent has no XB, so no Box is created

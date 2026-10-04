@@ -194,6 +194,7 @@ class FdsModel:
     holes: list = field(default_factory=list)   # &HOLE 的 XB：从 OBST 里抠掉气相区
     burning_surfs: set = field(default_factory=set)  # 燃烧/释气面 SURF ID（HRRPUA/MLRPUA/MASS_FLUX）
     material_surfs: set = field(default_factory=set)  # 真实材质面 SURF ID（带 MATL_ID 或 THICKNESS）
+    mb_faces: set = field(default_factory=set)       # &VENT MB='XMIN' 等显式网格边界面 (axis, which)
     devc: list = field(default_factory=list)   # (id, quantity, xyz)
     hrrpua_sum_area: float = 0.0               # Σ HRRPUA×面积（粗估总 HRR）
     t_end: float = 0.0
@@ -287,6 +288,13 @@ def parse_text(txt: str, path: Path = None) -> FdsModel:
         if head not in ("&OBST", "&VENT", "&HOLE", "&DEVC"):
             continue
         mx = XB_RE.search(rec)
+        if head == "&VENT":
+            # &VENT MB='XMIN' 等网格边界风口：即使没有 XB 也显式指定了整个边界面的
+            # 开口/表面。必须单独记下，否则 B1 会把本该 OPEN 的域边界误判成"裸墙"。
+            _s = dict(STR_RE.findall(rec))
+            _mb = (_s.get("MB", "") or "").upper()
+            if _mb in ("XMIN", "XMAX", "YMIN", "YMAX", "ZMIN", "ZMAX"):
+                m.mb_faces.add(("XYZ".index(_mb[0]), 0 if _mb.endswith("MIN") else 1))
         if head == "&DEVC":
             xy = XYZ_RE.search(rec)
             s = dict(STR_RE.findall(rec))
@@ -809,9 +817,16 @@ def check_model(m: FdsModel, resolution_floor: float = 4.0) -> list:
     faces = [("x-min", 0, 0), ("x-max", 0, 1),
              ("y-min", 1, 0), ("y-max", 1, 1),
              ("z-min", 2, 0), ("z-max", 2, 1)]
+    if m.mb_faces:
+        _face_names = ("XMIN", "XMAX", "YMIN", "YMAX", "ZMIN", "ZMAX")
+        _names = sorted(_face_names[a * 2 + w] for a, w in m.mb_faces)
+        out.append(Issue("B1", "INFO",
+                         f"识别 {len(m.mb_faces)} 个 &VENT MB= 网格边界风口（{', '.join(_names)}），"
+                         f"这些面上的气相格不视为裸墙"))
     for fname, axis, which in faces:
         idx = 0 if which == 0 else n3[axis] - 1
         gas = cov = 0
+        mb_open = (axis, which) in m.mb_faces
         for i in range(n3[0]):
             for j in range(n3[1]):
                 for k in range(n3[2]):
@@ -820,7 +835,7 @@ def check_model(m: FdsModel, resolution_floor: float = 4.0) -> list:
                     if not g.is_gas(i, j, k):
                         continue
                     gas += 1
-                    if any(_vent_covers(v, axis, which, i, j, k) for v in m.vents):
+                    if mb_open or any(_vent_covers(v, axis, which, i, j, k) for v in m.vents):
                         cov += 1
         covers.append((fname, gas, cov))
 
