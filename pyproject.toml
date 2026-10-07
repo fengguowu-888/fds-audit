@@ -28,7 +28,7 @@ classifiers = [
 fds-audit = "fds_audit.domain_check:main"
 
 [project.urls]
-Homepage = "https://github.com/wufengguo/fds-audit"
+Homepage = "https://github.com/fengguowu-888/fds-audit"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
